@@ -31,7 +31,7 @@ public:
   auto then(C&& c) { return (*this).then(get_default_executor(), ::std::forward<decltype(c)>(c)); }
   bool ready() const noexcept;
   bool valid() const noexcept;
-  const value_type& get() const;
+  auto get() const;
 private:
   future(shared_state<std::tuple<Ts...>>* state) : state(state) {}
   friend class promise<Ts...>;
@@ -41,12 +41,14 @@ private:
 template <typename... Ts>
 class promise {
 public:
-  constexpr promise() noexcept;
+  promise() noexcept;
 
   future<Ts...> get_future();
   template <typename... Us>
   void set_value(Us&&... us); 
   void set_exception(std::exception_ptr&& error); 
+  template <typename F, typename... Args>
+  void run_async(F&& f, Args&&... args);
 private:
   using value_type = detail::future_type<Ts...>;
   shared_state<std::tuple<Ts...>> *state;

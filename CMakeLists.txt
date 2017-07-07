@@ -6,7 +6,7 @@
 
 set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 set(CMAKE_CC_COMPILER /usr/bin/clang)
-set(CMAKE_CXX_FLAGS "-std=c++1z -g")
+set(CMAKE_CXX_FLAGS "-std=c++1z -g -pthreads -stdlib=libc++")
 
 cmake_minimum_required(VERSION 3.7)
 

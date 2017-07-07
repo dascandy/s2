@@ -2,14 +2,27 @@
 #include <type_traits>
 #include <string>
 
-template<class T, std::size_t N>
-class static_vector
+namespace s2 {
+
+template<class T>
+class vector
 {
     // properly aligned uninitialized storage for N T's
-    typename std::aligned_storage<sizeof(T), alignof(T)>::type data[N];
-    std::size_t m_size = 0;
+    static constexpr size_t innerCapacity = sizeof(126) / sizeof(T);   // Make object 128 bytes, or less.
+    union {
+      std::aligned_storage_t<innerCapacity * sizeof(T), alignof(T)> data_;
+      struct {
+        std::size_t capacity_;
+        T* ptr_;
+      };
+    };
+    uint8_t shortSize_;
+    uint8_t isInternal_;
 
 public:
+    size_t size() {
+
+    }
     // Create an object in aligned storage
     template<typename ...Args> void emplace_back(Args&&... args)
     {
@@ -26,10 +39,15 @@ public:
     }
 
     // Delete objects from aligned storage
-    ~static_vector()
+    ~vector()
     {
         for(std::size_t pos = 0; pos < m_size; ++pos) {
             reinterpret_cast<T*>(data+pos)->~T();
         }
     }
 };
+
+}
+
+
+
