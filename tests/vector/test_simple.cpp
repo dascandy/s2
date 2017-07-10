@@ -44,4 +44,25 @@ TEST_CASE("can store noncopyables", "[vector]") {
   ncs.resize(0);
 }
 
+template <size_t n>
+struct large_object {
+  char data[n];
+};
+
+TEST_CASE("large object not many", "[vector]") {
+  s2::vector<large_object<36>> v;
+  REQUIRE(v.capacity() == 3);
+  v.emplace_back();
+  v.emplace_back();
+  v.emplace_back();
+  v.emplace_back();
+  REQUIRE(v.size() == 4);
+  REQUIRE(v.capacity() == 6);
+  s2::vector<large_object<128>> v2;
+  REQUIRE(v2.capacity() == 0);
+  v2.emplace_back();
+  REQUIRE(v2.size() == 1);
+  REQUIRE(v2.capacity() == 2);
+}
+
 
