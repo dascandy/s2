@@ -4,26 +4,70 @@
 
 namespace s2 {
 
-template<class T>
+template<class T, size_t maxsize = 128>
 class vector
 {
     // properly aligned uninitialized storage for N T's
-    static constexpr size_t innerCapacity = sizeof(126) / sizeof(T);   // Make object 128 bytes, or less.
+    static constexpr size_t innerCapacity = (maxsize - 2) / sizeof(T);
     union {
       std::aligned_storage_t<innerCapacity * sizeof(T), alignof(T)> data_;
       struct {
+        std::size_t size_;
         std::size_t capacity_;
         T* ptr_;
       };
     };
-    uint8_t shortSize_;
+    uint8_t innerSize_;
     uint8_t isInternal_;
-
-public:
-    size_t size() {
-
+    static_assert(innerCapacity_ < 256, "Cannot make a local storage of larger than 255 local items");
+    T* ptr() {
+      return isInternal() ? &data : ptr_;
     }
-    // Create an object in aligned storage
+public:
+    void reserve(size_t newCapacity) {
+      if (newCapacity < capacity()) return;
+      // TODO: alignment
+      T* newPtr = reinterpret_cast<T*>(new unsigned char[sizeof(T) * newCapacity]);
+      for (size_t n = 0; n < size(); n++) {
+        new (&newPtr[n])T(std::move(ptr()[n]));
+        ptr()[n]->~T();
+      }
+      if (!isInternal_) 
+        delete [] (reinterpret_cast<unsigned char*>(ptr_));
+      ptr_ = newPtr;
+      capacity_ = size_;
+    }
+    void shrink_to_fit() { 
+      // We can't shrink the internal buffer
+      if (isInternal) return;
+      if (size_ < innerCapacity) {
+        // Internalize again
+        size_t size = size_;
+        T* ptr = ptr_;
+        for (size_t n = 0; n < size; n++) {
+          new (&data_[n])T(std::move(ptr[n]));
+          ptr[n]->~T();
+        }
+        delete [] (reinterpret_cast<unsigned char*>(ptr));
+        isInternal_ = true;
+      } else if (size_ < 3*(capacity_/4)) {
+        // realloc to smaller buffer, but only if there's a 25% or more gain to be had
+        T* newPtr = reinterpret_cast<T*>(new unsigned char[sizeof(T) * size_]);
+        for (size_t n = 0; n < size_; n++) {
+          new (&newPtr[n])T(std::move(ptr[n]));
+          ptr[n]->~T();
+        }
+        delete [] (reinterpret_cast<unsigned char*>(ptr_));
+        ptr_ = newPtr;
+        capacity_ = size_;
+      }
+    }
+    size_t capacity() {
+      return (isInternal_) ? innerCapacity_ : capacity_;
+    }
+    size_t size() {
+      return (isInternal_) ? innerSize_ : size_;
+    }
     template<typename ...Args> void emplace_back(Args&&... args)
     {
         if( m_size >= N ) // possible error handling
@@ -31,8 +75,6 @@ public:
         new(data+m_size) T(std::forward<Args>(args)...);
         ++m_size;
     }
-
-    // Access an object in aligned storage
     const T& operator[](std::size_t pos) const
     {
         return *reinterpret_cast<const T*>(data+pos);
