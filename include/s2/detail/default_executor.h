@@ -35,10 +35,10 @@ public:
     } catch(const std::exception& e) {
     }
   }
-  void schedule(std::function<void()>&& task) {
+  void schedule(function<void()>&& task) {
     q_.push(std::move(task));
   }
-  async_queue<std::function<void()>> q_;
+  async_queue<function<void()>> q_;
   vector<std::thread> threads;
 };
 

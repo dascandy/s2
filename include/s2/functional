@@ -24,7 +24,7 @@ namespace s2 {
         return t(std::forward<Args>(args)...);
       }
       void moveTo(void* place) override {
-        new (place)CStorage<T>(std::move(*this));
+        new (place)CStorage<T>(std::move(t));
         this->~CStorage<T>();
       }
     };
@@ -39,9 +39,12 @@ namespace s2 {
       switch(f.state) {
       case Empty: break;
       case Internal: f.getStorage()->moveTo(&storage); state = Internal; break;
-      case External: *reinterpret_cast<IStorage**>(&storage) = *reinterpret_cast<IStorage**>(&f.storage); break;
+      case External: *reinterpret_cast<IStorage**>(&storage) = *reinterpret_cast<IStorage**>(&f.storage); state = External; break;
       }
       f.state = Empty;
+    }
+    ~function() {
+      if (state != Empty) getStorage()->~IStorage();
     }
     template<class F> function(F f) {
       if constexpr (sizeof(F) <= sizeof(storage)) {
