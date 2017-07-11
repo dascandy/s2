@@ -1,64 +1,94 @@
+#pragma once
 
-template<class R, class... ArgTypes> class function<R(ArgTypes...)>;
-template<class R, class... ArgTypes> void swap(function<R(ArgTypes...)>&, function<R(ArgTypes...)>&);
-template<class R, class... ArgTypes> bool operator==(const function<R(ArgTypes...)>&, nullptr_t) noexcept;
-template<class R, class... ArgTypes> bool operator==(nullptr_t, const function<R(ArgTypes...)>&) noexcept;
-template<class R, class... ArgTypes> bool operator!=(const function<R(ArgTypes...)>&, nullptr_t) noexcept;
-template<class R, class... ArgTypes> bool operator!=(nullptr_t, const function<R(ArgTypes...)>&) noexcept;
+#include <cstddef>
 
 namespace s2 {
-  class bad_function_call : public exception {
+  class bad_function_call : public std::exception {
   public:
     bad_function_call() noexcept {}
   };
 
   template<typename> class function;
-  // undefined
-  template<typename R, typename... ArgTypes>
-  class function<R(ArgTypes...)> {
+  template<typename R, typename... Args>
+  class function<R(Args...)> {
     class IStorage {
     public:
-      virtual ~IStorage();
-      virtual R invoke(Args&&... args) = 0;
-      virtual void moveTo(IStorage* storage) = 0;
+      virtual ~IStorage() {}
+      virtual R invoke(Args&&... args) const = 0;
+      virtual void moveTo(void* storage) = 0;
     };
     template <typename T>
-    class storage {
+    class CStorage : public IStorage {
+    public:
+      CStorage(T t) : t(t) {}
       T t;
-      R invoke(Args&&... args) {
+      R invoke(Args&&... args) const override {
         return t(std::forward<Args>(args)...);
       }
+      void moveTo(void* place) override {
+        new (place)CStorage<T>(std::move(*this));
+        this->~CStorage<T>();
+      }
     };
+    std::aligned_storage_t<24, 8> storage;
+    enum : uint8_t { Empty, Internal, External } state = Empty;
+    IStorage* getStorage() { if (state == Internal) return reinterpret_cast<IStorage*>(&storage); else return *reinterpret_cast<IStorage**>(&storage); }
   public:
     using result_type = R;
-    function() noexcept;
-    function(nullptr_t) noexcept;
-    function(const function&);
-    function(function&&);
-    template<class F> function(F);
-    function& operator=(const function&);
-    function& operator=(function&&);
-    function& operator=(nullptr_t) noexcept;
-    template<class F> function& operator=(F&&);
-    template<class F> function& operator=(reference_wrapper<F>) noexcept;
-    function();
-    void swap(function&) noexcept;
-    explicit operator bool() const noexcept;
-    R operator()(ArgTypes...) const;
+    function() noexcept {}
+    function(std::nullptr_t) noexcept {}
+    function(function&& f) {
+      switch(f.state) {
+      case Empty: break;
+      case Internal: f.getStorage()->moveTo(&storage); state = Internal; break;
+      case External: *reinterpret_cast<IStorage**>(&storage) = *reinterpret_cast<IStorage**>(&f.storage); break;
+      }
+      f.state = Empty;
+    }
+    template<class F> function(F f) {
+      state = (sizeof(F) <= sizeof(storage)) ? Internal : External;
+      new (getStorage())CStorage<F>(std::forward<F>(f));
+    }
+    function& operator=(function&& f) {
+      if (state != Empty) getStorage()->~IStorage();
+      switch(f.state) {
+      case Empty: break;
+      case Internal: f.storage->moveTo(&storage); state = Internal; break;
+      case External: reinterpret_cast<IStorage*>(storage) = reinterpret_cast<IStorage*>(f.storage); break;
+      }
+      f.state = Empty;
+    }
+    function& operator=(std::nullptr_t) noexcept {
+      if (state != Empty) getStorage()->~IStorage();
+      state = Empty;
+    }
+    template<class F> function& operator=(F&&f) {
+      if (state != Empty) getStorage()->~IStorage();
+      state = (sizeof(F) <= sizeof(storage)) ? Internal : External;
+      new (getStorage())CStorage<F>(std::forward<F>(f));
+    }
+//    void swap(function&) noexcept;
+    explicit operator bool() const noexcept { return (state != Empty); }
+    R operator()(Args... args) const {
+      switch(state) {
+      case Empty: throw bad_function_call();
+      case Internal: return (*reinterpret_cast<const IStorage*>(&storage)).invoke(std::forward<Args>(args)...);
+      case External: return (*reinterpret_cast<const IStorage*const*>(&storage))->invoke(std::forward<Args>(args)...);
+      }
+    }
+/*
     const type_info& target_type() const noexcept;
     template<class T>       T* target() noexcept;
     template<class T> const T* target() const noexcept;
+*/
   };
   // 20.14.12.2.6, Null pointer comparisons:
-  template <class R, class... ArgTypes>
-  bool operator==(const function<R(ArgTypes...)>&, nullptr_t) noexcept;
-  template <class R, class... ArgTypes>
-  bool operator==(nullptr_t, const function<R(ArgTypes...)>&) noexcept;
-  template <class R, class... ArgTypes>
-  bool operator!=(const function<R(ArgTypes...)>&, nullptr_t) noexcept;
-  template <class R, class... ArgTypes>
-  bool operator!=(nullptr_t, const function<R(ArgTypes...)>&) noexcept;
-  // 20.14.12.2.7, specialized algorithms:
-  template <class R, class... ArgTypes>
-  void swap(function<R(ArgTypes...)>&, function<R(ArgTypes...)>&);
+  template <class R, class... Args>
+  bool operator==(const function<R(Args...)>&, std::nullptr_t) noexcept;
+  template <class R, class... Args>
+  bool operator==(std::nullptr_t, const function<R(Args...)>&) noexcept;
+  template <class R, class... Args>
+  bool operator!=(const function<R(Args...)>&, std::nullptr_t) noexcept;
+  template <class R, class... Args>
+  bool operator!=(std::nullptr_t, const function<R(Args...)>&) noexcept;
 }
