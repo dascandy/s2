@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <type_traits>
 #include <string>
@@ -20,195 +22,85 @@ class vector
       T* ptr_;
     };
   };
+  uint32_t generation = 0;
   uint8_t innerSize_ = innerCapacity_;
   static_assert(innerCapacity_ < 255, "Cannot make a local storage of larger than 255 local items");
-  bool isExternal() { return innerSize_ == 255; }
-  T* ptr() {
-    return isExternal() ? ptr_ : reinterpret_cast<T*>(&data_);
-  }
+  bool isExternal() const;
+  T* ptr();
 public:
-  // Functions that do something with the internals
-  size_t capacity() {
-    return isExternal() ? capacity_ : innerCapacity_;
-  }
-  size_t size() {
-    return isExternal() ? size_ : innerCapacity_ - innerSize_;
-  }
-  void reserve(size_t newCapacity) {
-    if (newCapacity <= capacity()) return;
-    // TODO: alignment // TODO: exception safety
-    T* newPtr = reinterpret_cast<T*>(new unsigned char[sizeof(T) * newCapacity]);
-    size_t tsize = size();
-    for (size_t n = 0; n < tsize; n++) {
-      new (&newPtr[n])T(std::move(ptr()[n]));
-      ptr()[n].~T();
-    }
-    if (isExternal())
-      delete [] (reinterpret_cast<unsigned char*>(ptr_));
-    ptr_ = newPtr;
-    capacity_ = newCapacity;
-    size_ = tsize;
-    innerSize_ = 255;
-  }
-  void grow() {
-    // holder for grow policy
-    if (capacity() == size())
-      reserve(2 + capacity() + capacity() / 2);
-  }
-  void shrink_to_fit() {
-    // We can't shrink the internal buffer
-    if (!isExternal()) return;
-    if (size() < innerCapacity_) {
-      // Internalize again
-      size_t tsize = size();
-      T* tptr = ptr();
-      innerSize_ = innerCapacity_ - tsize;
-      for (size_t n = 0; n < tsize; n++) {
-        new (&ptr()[n])T(std::move(tptr[n]));
-        tptr[n].~T();
-      }
-      delete [] (reinterpret_cast<unsigned char*>(tptr));
-    } else if (size_ < 3*(capacity_/4)) {
-      // realloc to smaller buffer, but only if there's a 25% or more gain to be had
-      T* tptr = ptr();
-      T* newPtr = reinterpret_cast<T*>(new unsigned char[sizeof(T) * size_]);
-      for (size_t n = 0; n < size_; n++) {
-        new (&newPtr[n])T(std::move(tptr[n]));
-        tptr[n].~T();
-      }
-      delete [] (reinterpret_cast<unsigned char*>(tptr));
-      ptr_ = newPtr;
-      capacity_ = size_;
-    }
-  }
-  void push_back(const T& value) {
-    grow();
-    new (&ptr()[size()])T(value);
-    if (isExternal()) size_++; else innerSize_--;
-  }
-  void push_back(T&& value) {
-    grow();
-    new (&ptr()[size()])T(std::forward<decltype(value)>(value));
-    if (isExternal()) size_++; else innerSize_--;
-  }
-  T pop_back() {
-    assert(!empty());
-    struct do_at_function_exit {
-      do_at_function_exit(vector<T>* v) : v(v) {}
-      ~do_at_function_exit() {
-        if (disable) return;
-        v->ptr()[v->size() - 1].~T();
-        if (v->isExternal()) v->size_--; else v->innerSize_++;
-      }
-      vector<T>* v;
-      bool disable = false;
-    } _inst(this);
-    try {
-      return std::move(ptr()[size() - 1]);
-    } catch (...) {
-      _inst.disable = true;
-      throw;
-    }
-  }
-
-  // Functions that just rely on the functions above to do what they do
-  constexpr vector() noexcept {}
-  explicit vector(size_t count) {
-    while (count--) push_back(T());
-  }
-  vector(size_t count, const T& value) {
-    while (count--) push_back(value);
-  }
+  struct iterator;
+  struct const_iterator;
+  iterator begin();
+  iterator end();
+  const_iterator begin() const;
+  const_iterator end() const;
+  size_t capacity() const;
+  size_t size() const;
+  void reserve(size_t newCapacity);
+  void grow();
+  void shrink_to_fit();
+  constexpr vector() noexcept;
+  explicit vector(size_t count);
+  vector(size_t count, const T& value);
   template <typename IT>
-  vector(IT first, IT last) {
-    assign(first, last);
-  }
-  vector(vector<T>&& other) noexcept(std::is_nothrow_move_constructible<T>::value) {
-    if (other.isExternal()) {
-      innerSize_ = 255;
-      size_ = other.size_;
-      capacity_ = other.capacity_;
-      ptr_ = other.ptr_;
-    } else {
-      for (size_t n = 0; n < other.size(); n++) {
-        push_back(std::move(other[n]));
-      }
-    }
-  }
-  vector(const vector<T>& other) {
-    reserve(other.size());
-    assign(other.begin(), other.end());
-  }
-  vector(std::initializer_list<T> init) {
-    assign(init);
-  }
-  ~vector() {
-    resize(0);
-    shrink_to_fit();
-  }
-  void assign(size_t count, const T& value) {
-    clear();
-    for (size_t n = 0; n < count; n++) push_back(value);
-  }
+  vector(IT first, IT last);
+  vector(vector<T>&& other) noexcept(std::is_nothrow_move_constructible<T>::value);
+  vector(const vector<T>& other);
+  vector(std::initializer_list<T> init);
+  ~vector();
+  void assign(size_t count, const T& value);
   template <typename IT>
-  void assign(IT first, IT last) {
-    clear();
-    while (first != last) push_back(*first++);
-  }
-  void assign(std::initializer_list<T> ilist) {
-    clear();
-    reserve(ilist.size());
-    auto it = ilist.begin(), end = ilist.end();
-    while (it != end) push_back(*it++);
-  }
-  void resize(size_t newSize) {
-    if (newSize <= size()) {
-      while (newSize < size())
-        pop_back();
-      return;
-    }
-    while (newSize > size_) {
-      push_back(T());
-    }
-  }
-  const T* data() {
-    return ptr();
-  }
-  const T& operator[](size_t index) const noexcept {
-    assert(index < size());
-    return ptr()[index];
-  }
-  T& operator[](size_t index) noexcept {
-    assert(index < size());
-    return ptr()[index];
-  }
-  const T& at(size_t index) const {
-    if (index >= size()) throw std::out_of_range("index out of bounds");
-    return ptr()[index];
-  }
-  T& at(size_t index) {
-    if (index >= size()) throw std::out_of_range("index out of bounds");
-    return ptr()[index];
-  }
-  T& front() { 
-    assert(!empty());
-    return ptr()[0];
-  }
-  T& back() { 
-    assert(!empty());
-    return ptr()[size() - 1]; 
-  }
-  void clear() noexcept { resize(0); }
-  bool empty() noexcept { return size() == 0; }
+  void assign(IT first, IT last);
+  void assign(std::initializer_list<T> ilist);
+  void resize(size_t newSize);
+  const T* data();
+  const T& operator[](size_t index) const noexcept;
+  T& operator[](size_t index) noexcept;
+  const T& at(size_t index) const;
+  T& at(size_t index);
+  T& front();
+  T& back();
+  void push_back(const T& value);
+  void push_back(T&& value);
+  T pop_back();
+  void clear() noexcept;
+  bool empty() noexcept;
   template<typename ...Args> 
-  void emplace_back(Args&&... args) {
-    grow();
-    new(&ptr()[size()])T(std::forward<Args>(args)...);
-    if (isExternal()) size_++; else innerSize_--;
-  }
+  void emplace_back(Args&&... args);
+};
+
+template<class T, size_t maxsize>
+struct vector<T, maxsize>::iterator {
+  iterator(T* ptr) : ptr(ptr) {}
+  bool operator==(const iterator& it) const { return ptr == it.ptr; }
+  bool operator!=(const iterator& it) const { return !(*this == it); }
+  iterator& operator++() { ptr++; return *this; }
+  iterator operator++(int) { iterator copy = *this; ptr++; return copy; }
+  iterator& operator--() { ptr--; return *this; }
+  iterator operator--(int) { iterator copy = *this; ptr--; return copy; }
+  T& operator*() { return *ptr; }
+  T* operator->() { return ptr; }
+private:
+  T* ptr;
+};
+
+template<class T, size_t maxsize>
+struct vector<T, maxsize>::const_iterator {
+  const_iterator(const T* ptr) : ptr(ptr) {}
+  bool operator==(const const_iterator& it) const { return ptr == it.ptr; }
+  bool operator!=(const const_iterator& it) const { return !(*this == it); }
+  const_iterator& operator++() { ptr++; return *this; }
+  const_iterator operator++(int) { const_iterator copy = *this; ptr++; return copy; }
+  const_iterator& operator--() { ptr--; return *this; }
+  const_iterator operator--(int) { const_iterator copy = *this; ptr--; return copy; }
+  const T& operator*() { return *ptr; }
+  const T* operator->() { return ptr; }
+private:
+  const T* ptr;
 };
 
 }
 
+#include "detail/vector.h"
 
 

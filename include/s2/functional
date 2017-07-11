@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstddef>
-
 namespace s2 {
   class bad_function_call : public std::exception {
   public:
@@ -46,8 +44,13 @@ namespace s2 {
       f.state = Empty;
     }
     template<class F> function(F f) {
-      state = (sizeof(F) <= sizeof(storage)) ? Internal : External;
-      new (getStorage())CStorage<F>(std::forward<F>(f));
+      if constexpr (sizeof(F) <= sizeof(storage)) {
+        state = Internal;
+        new (getStorage())CStorage<F>(std::forward<F>(f));
+      } else {
+        state = External;
+        *reinterpret_cast<IStorage**>(&storage) = new CStorage<F>(std::forward<F>(f));
+      }
     }
     function& operator=(function&& f) {
       if (state != Empty) getStorage()->~IStorage();
@@ -64,8 +67,13 @@ namespace s2 {
     }
     template<class F> function& operator=(F&&f) {
       if (state != Empty) getStorage()->~IStorage();
-      state = (sizeof(F) <= sizeof(storage)) ? Internal : External;
-      new (getStorage())CStorage<F>(std::forward<F>(f));
+      if constexpr (sizeof(F) <= sizeof(storage)) {
+        state = Internal;
+        new (getStorage())CStorage<F>(std::forward<F>(f));
+      } else {
+        state = External;
+        *reinterpret_cast<IStorage**>(&storage) = new CStorage<F>(std::forward<F>(f));
+      }
     }
 //    void swap(function&) noexcept;
     explicit operator bool() const noexcept { return (state != Empty); }

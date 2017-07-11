@@ -25,7 +25,14 @@ TEST_CASE("can externalize", "[vector]") {
   for (size_t n = 0; n < 32; n++) { v.push_back(n); }
   REQUIRE(v.capacity() > 40);
   REQUIRE(v.capacity() < 60);
+  for (auto& n : v) {
+    REQUIRE(&n == &v[n]);
+  }
   for (size_t n = 0; n < 32; n++) { REQUIRE(v[n] == n); }
+
+  size_t sum = 0;
+  for (auto& n : v) sum += n;
+  REQUIRE(sum == 496);
 }
 
 struct nc {
