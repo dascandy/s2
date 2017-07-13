@@ -12,7 +12,7 @@ namespace s2 {
 constexpr size_t max(size_t a, size_t b) { return (a > b) ? a : b; }
 
 template<class T, size_t maxsize = 128>
-class vector
+class alignas(max(alignof(T), alignof(T*))) vector
 {
   // properly aligned uninitialized storage for N T's
   static constexpr size_t innerCapacity_ = (maxsize - 2) / sizeof(T);
