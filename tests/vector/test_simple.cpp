@@ -59,7 +59,7 @@ struct large_object {
 TEST_CASE("large object not many", "[vector]") {
   s2::vector<large_object<36>> v;
   static_assert(sizeof(large_object<36>) == 36);
-  static_assert(sizeof(v) == 120);
+  static_assert(sizeof(v) == 109);
   REQUIRE(v.capacity() == 3);
   v.emplace_back();
   v.emplace_back();
@@ -68,7 +68,7 @@ TEST_CASE("large object not many", "[vector]") {
   REQUIRE(v.size() == 4);
   REQUIRE(v.capacity() == 6);
   s2::vector<large_object<128>> v2;
-  static_assert(sizeof(v2) == 32);
+  static_assert(sizeof(v2) == 25);
   REQUIRE(v2.capacity() == 0);
   v2.emplace_back();
   REQUIRE(v2.size() == 1);

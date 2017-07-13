@@ -9,21 +9,20 @@
 
 namespace s2 {
 
+constexpr size_t max(size_t a, size_t b) { return (a > b) ? a : b; }
+
 template<class T, size_t maxsize = 128>
 class vector
 {
   // properly aligned uninitialized storage for N T's
   static constexpr size_t innerCapacity_ = (maxsize - 2) / sizeof(T);
-  union {
-    std::aligned_storage_t<innerCapacity_ * sizeof(T), alignof(T)> data_;
-    struct {
-      std::size_t size_;
-      std::size_t capacity_;
-      T* ptr_;
-    };
+  struct inner {
+    std::size_t size_;
+    std::size_t capacity_;
+    T* ptr_;
   };
-  uint32_t generation = 0;
-  uint8_t innerSize_ = innerCapacity_;
+  std::aligned_storage_t<max(innerCapacity_ * sizeof(T), sizeof(inner)), 1> storage;
+  uint8_t innerSize_ = 0;
   static_assert(innerCapacity_ < 255, "Cannot make a local storage of larger than 255 local items");
   bool isExternal() const;
   T* ptr();

@@ -34,17 +34,17 @@ bool vector<T, maxsize>::isExternal() const {
 
 template<class T, size_t maxsize>
 T* vector<T, maxsize>::ptr() {
-  return isExternal() ? ptr_ : reinterpret_cast<T*>(&data_);
+  return isExternal() ? reinterpret_cast<inner*>(&storage)->ptr_ : reinterpret_cast<T*>(&storage);
 }
 
 template<class T, size_t maxsize>
 size_t vector<T, maxsize>::capacity() const {
-  return isExternal() ? capacity_ : innerCapacity_;
+  return isExternal() ? reinterpret_cast<const inner*>(&storage)->capacity_ : innerCapacity_;
 }
 
 template<class T, size_t maxsize>
 size_t vector<T, maxsize>::size() const {
-  return isExternal() ? size_ : innerCapacity_ - innerSize_;
+  return isExternal() ? reinterpret_cast<const inner*>(&storage)->size_ : innerSize_;
 }
 
 template<class T, size_t maxsize>
@@ -58,11 +58,12 @@ void vector<T, maxsize>::reserve(size_t newCapacity) {
     ptr()[n].~T();
   }
   if (isExternal())
-    delete [] (reinterpret_cast<unsigned char*>(ptr_));
-  ptr_ = newPtr;
-  capacity_ = newCapacity;
-  size_ = tsize;
+    delete [] (reinterpret_cast<unsigned char*>(reinterpret_cast<inner*>(&storage)->ptr_));
   innerSize_ = 255;
+  inner* in = reinterpret_cast<inner*>(&storage);
+  in->ptr_ = newPtr;
+  in->capacity_ = newCapacity;
+  in->size_ = tsize;
 }
 
 template<class T, size_t maxsize>
@@ -76,27 +77,28 @@ template<class T, size_t maxsize>
 void vector<T, maxsize>::shrink_to_fit() {
   // We can't shrink the internal buffer
   if (!isExternal()) return;
+  inner* in = reinterpret_cast<inner*>(&storage);
   if (size() < innerCapacity_) {
     // Internalize again
     size_t tsize = size();
     T* tptr = ptr();
-    innerSize_ = innerCapacity_ - tsize;
+    innerSize_ = tsize;
     for (size_t n = 0; n < tsize; n++) {
       new (&ptr()[n])T(std::move(tptr[n]));
       tptr[n].~T();
     }
     delete [] (reinterpret_cast<unsigned char*>(tptr));
-  } else if (size_ < 3*(capacity_/4)) {
+  } else if (in->size_ < 3*(in->capacity_/4)) {
     // realloc to smaller buffer, but only if there's a 25% or more gain to be had
     T* tptr = ptr();
-    T* newPtr = reinterpret_cast<T*>(new unsigned char[sizeof(T) * size_]);
-    for (size_t n = 0; n < size_; n++) {
+    T* newPtr = reinterpret_cast<T*>(new unsigned char[sizeof(T) * size()]);
+    for (size_t n = 0; n < size(); n++) {
       new (&newPtr[n])T(std::move(tptr[n]));
       tptr[n].~T();
     }
     delete [] (reinterpret_cast<unsigned char*>(tptr));
-    ptr_ = newPtr;
-    capacity_ = size_;
+    in->ptr_ = newPtr;
+    in->capacity_ = size();
   }
 }
 
@@ -104,14 +106,14 @@ template<class T, size_t maxsize>
 void vector<T, maxsize>::push_back(const T& value) {
   grow();
   new (&ptr()[size()])T(value);
-  if (isExternal()) size_++; else innerSize_--;
+  if (isExternal()) reinterpret_cast<inner*>(&storage)->size_++; else innerSize_++;
 }
 
 template<class T, size_t maxsize>
 void vector<T, maxsize>::push_back(T&& value) {
   grow();
   new (&ptr()[size()])T(std::forward<decltype(value)>(value));
-  if (isExternal()) size_++; else innerSize_--;
+  if (isExternal()) reinterpret_cast<inner*>(&storage)->size_++; else innerSize_++;
 }
 
 template<class T, size_t maxsize>
@@ -122,7 +124,7 @@ T vector<T, maxsize>::pop_back() {
     ~do_at_function_exit() {
       if (disable) return;
       v->ptr()[v->size() - 1].~T();
-      if (v->isExternal()) v->size_--; else v->innerSize_++;
+      if (v->isExternal()) reinterpret_cast<inner*>(&v->storage)->size_--; else v->innerSize_--;
     }
     vector<T>* v;
     bool disable = false;
@@ -160,9 +162,10 @@ template<class T, size_t maxsize>
 vector<T, maxsize>::vector(vector<T>&& other) noexcept(std::is_nothrow_move_constructible<T>::value) {
   if (other.isExternal()) {
     innerSize_ = 255;
-    size_ = other.size_;
-    capacity_ = other.capacity_;
-    ptr_ = other.ptr_;
+    inner* in = reinterpret_cast<inner*>(&storage);
+    in->size_ = other.size();
+    in->capacity_ = other.capacity();
+    in->ptr_ = other.ptr();
   } else {
     for (size_t n = 0; n < other.size(); n++) {
       push_back(std::move(other[n]));
@@ -215,7 +218,7 @@ void vector<T, maxsize>::resize(size_t newSize) {
       pop_back();
     return;
   }
-  while (newSize > size_) {
+  while (newSize > size()) {
     push_back(T());
   }
 }
@@ -276,7 +279,7 @@ template<typename ...Args>
 void vector<T, maxsize>::emplace_back(Args&&... args) {
   grow();
   new(&ptr()[size()])T(std::forward<Args>(args)...);
-  if (isExternal()) size_++; else innerSize_--;
+  if (isExternal()) reinterpret_cast<inner*>(&storage)->size_++; else innerSize_++;
 }
 
 }
