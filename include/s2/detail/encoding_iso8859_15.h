@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename It>
-size_t iso8859_15::encode(It output, char32_t chr) {
+size_t iso8859_15::encode(It& output, char32_t chr) {
   switch(chr) {
   case 0x20AC: *output++ = 0xA4; break;
   case 0x160: *output++ = 0xA6; break;
@@ -30,7 +30,7 @@ size_t iso8859_15::encode(It output, char32_t chr) {
 }
 
 template <typename It>
-char32_t iso8859_15::decode(It iterator) {
+char32_t iso8859_15::decode(It& iterator) {
   char32_t value = *it++;
   switch (value) {
     case 0xA4: value = 0x20AC; break;
@@ -46,7 +46,7 @@ char32_t iso8859_15::decode(It iterator) {
 }
 
 template <typename It>
-void iso8859_15::walk(It iterator, int delta) {
+void iso8859_15::walk(It& iterator, int delta) {
   int direction = (delta < 0 ? -1 : +1);
   while (delta != 0) {
     iterator += direction;

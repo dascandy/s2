@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename It>
-size_t windows1252::encode(It output, char32_t chr) {
+size_t windows1252::encode(It& output, char32_t chr) {
   switch(chr) {
   case 0x20AC: *output++ = 0x80; break;
   case 0x201A: *output++ = 0x82; break;
@@ -66,7 +66,7 @@ size_t windows1252::encode(It output, char32_t chr) {
 }
 
 template <typename It>
-char32_t windows1252::decode(It iterator) {
+char32_t windows1252::decode(It& iterator) {
   char32_t value = *it++;
   switch (value) {
     case 0x80: value = 0x20AC; break;
@@ -101,7 +101,7 @@ char32_t windows1252::decode(It iterator) {
 }
 
 template <typename It>
-void windows1252::walk(It iterator, int delta) {
+void windows1252::walk(It& iterator, int delta) {
   int direction = (delta < 0 ? -1 : +1);
   while (delta != 0) {
     iterator += direction;

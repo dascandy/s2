@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename It>
-size_t cp437::encode(It output, char32_t chr) {
+size_t cp437::encode(It& output, char32_t chr) {
   switch(chr) {
   case 0x2302: *output++ = 0x7F; break;
   case 0x00C7: *output++ = 0x80; break;
@@ -218,7 +218,7 @@ size_t cp437::encode(It output, char32_t chr) {
 }
 
 template <typename It>
-char32_t cp437::decode(It iterator) {
+char32_t cp437::decode(It& iterator) {
   char32_t value = *it++;
   switch (value) {
   case 0x7F: value = 0x2302; break;
@@ -355,7 +355,7 @@ char32_t cp437::decode(It iterator) {
 }
 
 template <typename It>
-void cp437::walk(It iterator, int delta) {
+void cp437::walk(It& iterator, int delta) {
   int direction = (delta < 0 ? -1 : +1);
   while (delta != 0) {
     iterator += direction;
