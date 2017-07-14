@@ -1,0 +1,104 @@
+#pragma once
+
+struct utf8 {
+  using storage_unit = uint8_t;
+  template <typename It>
+  static size_t encode(It output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It iterator, int delta);
+};
+
+struct utf16 {
+  using storage_unit = uint16_t;
+  template <typename It>
+  static size_t encode(It output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It iterator, int delta);
+};
+
+struct ucs2 {
+  using storage_unit = uint16_t;
+  template <typename It>
+  static size_t encode(It output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It iterator, int delta);
+};
+
+struct utf32 {
+  using storage_unit = uint32_t;
+  template <typename It>
+  static size_t encode(It output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It iterator, int delta);
+};
+
+struct utf8_modified {
+  using storage_unit = uint8_t;
+  template <typename It>
+  static size_t encode(It output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It iterator, int delta);
+};
+
+struct iso8859_1 {
+  using storage_unit = uint8_t;
+  template <typename It>
+  static size_t encode(It output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It iterator, int delta);
+};
+
+struct iso8859_15 {
+  using storage_unit = uint8_t;
+  template <typename It>
+  static size_t encode(It output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It iterator, int delta);
+};
+
+struct cp437 {
+  using storage_unit = uint8_t;
+  template <typename It>
+  static size_t encode(It output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It iterator, int delta);
+};
+
+struct windows1252 {
+  using storage_unit = uint8_t;
+  template <typename It>
+  static size_t encode(It output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It iterator, int delta);
+};
+
+
+#include "detail/encoding_utf8.h"
+#include "detail/encoding_utf16.h"
+#include "detail/encoding_utf32.h"
+#include "detail/encoding_ucs2.h"
+#include "detail/encoding_utf8_modified.h"
+#include "detail/encoding_iso8859_1.h"
+#include "detail/encoding_iso8859_15.h"
+#include "detail/encoding_cp437.h"
+#include "detail/encoding_windows1252.h"
+
+
