@@ -2,18 +2,29 @@
 
 template <typename It>
 size_t iso8859_15::encode(It output, char32_t chr) {
-  if (chr > 255) *output++ = '?';
-  else {
-    switch(chr) {
-    case 0x20AC: *output++ = 0xA4; break;
-    case 0x160: *output++ = 0xA6; break;
-    case 0x161: *output++ = 0xA8; break;
-    case 0x17D: *output++ = 0xB4; break;
-    case 0x17E: *output++ = 0xB8; break;
-    case 0x152: *output++ = 0xBC; break;
-    case 0x153: *output++ = 0xBD; break;
-    case 0x178: *output++ = 0xBE; break;
-    default: *output++ = chr; break;
+  switch(chr) {
+  case 0x20AC: *output++ = 0xA4; break;
+  case 0x160: *output++ = 0xA6; break;
+  case 0x161: *output++ = 0xA8; break;
+  case 0x17D: *output++ = 0xB4; break;
+  case 0x17E: *output++ = 0xB8; break;
+  case 0x152: *output++ = 0xBC; break;
+  case 0x153: *output++ = 0xBD; break;
+  case 0x178: *output++ = 0xBE; break;
+  case 0xA4:
+  case 0xA6:
+  case 0xA8:
+  case 0xB4:
+  case 0xB8:
+  case 0xBC:
+  case 0xBD:
+  case 0xBE:
+      *output++ = '?';
+      break;
+  default:
+      if (chr > 255) *output++ = '?';
+      else *output++ = chr;
+      break;
   }
   return 1;
 }
