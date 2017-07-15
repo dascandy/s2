@@ -3,6 +3,37 @@
 template <typename It>
 size_t cp437::encode(It& output, char32_t chr) {
   switch(chr) {
+  case 0x263A: *output++ = 0x01; break;
+  case 0x263B: *output++ = 0x02; break;
+  case 0x2665: *output++ = 0x03; break;
+  case 0x2666: *output++ = 0x04; break;
+  case 0x2663: *output++ = 0x05; break;
+  case 0x2660: *output++ = 0x06; break;
+  case 0x2022: *output++ = 0x07; break;
+  case 0x25D8: *output++ = 0x08; break;
+  case 0x25CB: *output++ = 0x09; break;
+  case 0x25D9: *output++ = 0x0A; break;
+  case 0x2642: *output++ = 0x0B; break;
+  case 0x2640: *output++ = 0x0C; break;
+  case 0x266A: *output++ = 0x0D; break;
+  case 0x266B: *output++ = 0x0E; break;
+  case 0x263C: *output++ = 0x0F; break;
+  case 0x25BA: *output++ = 0x10; break;
+  case 0x25C4: *output++ = 0x11; break;
+  case 0x2195: *output++ = 0x12; break;
+  case 0x203C: *output++ = 0x13; break;
+  case 0x00B6: *output++ = 0x14; break;
+  case 0x00A7: *output++ = 0x15; break;
+  case 0x25AC: *output++ = 0x16; break;
+  case 0x21A8: *output++ = 0x17; break;
+  case 0x2191: *output++ = 0x18; break;
+  case 0x2193: *output++ = 0x19; break;
+  case 0x2192: *output++ = 0x1A; break;
+  case 0x2190: *output++ = 0x1B; break;
+  case 0x221F: *output++ = 0x1C; break;
+  case 0x2194: *output++ = 0x1D; break;
+  case 0x25B2: *output++ = 0x1E; break;
+  case 0x25BC: *output++ = 0x1F; break;
   case 0x2302: *output++ = 0x7F; break;
   case 0x00C7: *output++ = 0x80; break;
   case 0x00FC: *output++ = 0x81; break;
@@ -168,7 +199,6 @@ size_t cp437::encode(It& output, char32_t chr) {
   case 0x9F:
   case 0xA4:
   case 0xA6:
-  case 0xA7:
   case 0xA8:
   case 0xA9:
   case 0xAD:
@@ -176,7 +206,6 @@ size_t cp437::encode(It& output, char32_t chr) {
   case 0xAF:
   case 0xB3:
   case 0xB4:
-  case 0xB6:
   case 0xB8:
   case 0xB9:
   case 0xBE:
@@ -221,6 +250,37 @@ template <typename It>
 char32_t cp437::decode(It& iterator) {
   char32_t value = *it++;
   switch (value) {
+  case 0x01: value = 0x263A; break;
+  case 0x02: value = 0x263B; break;
+  case 0x03: value = 0x2665; break;
+  case 0x04: value = 0x2666; break;
+  case 0x05: value = 0x2663; break;
+  case 0x06: value = 0x2660; break;
+  case 0x07: value = 0x2022; break;
+  case 0x08: value = 0x25D8; break;
+  case 0x09: value = 0x25CB; break;
+  case 0x0A: value = 0x25D9; break;
+  case 0x0B: value = 0x2642; break;
+  case 0x0C: value = 0x2640; break;
+  case 0x0D: value = 0x266A; break;
+  case 0x0E: value = 0x266B; break;
+  case 0x0F: value = 0x263C; break;
+  case 0x10: value = 0x25BA; break;
+  case 0x11: value = 0x25C4; break;
+  case 0x12: value = 0x2195; break;
+  case 0x13: value = 0x203C; break;
+  case 0x14: value = 0x00B6; break;
+  case 0x15: value = 0x00A7; break;
+  case 0x16: value = 0x25AC; break;
+  case 0x17: value = 0x21A8; break;
+  case 0x18: value = 0x2191; break;
+  case 0x19: value = 0x2193; break;
+  case 0x1A: value = 0x2192; break;
+  case 0x1B: value = 0x2190; break;
+  case 0x1C: value = 0x221F; break;
+  case 0x1D: value = 0x2194; break;
+  case 0x1E: value = 0x25B2; break;
+  case 0x1F: value = 0x25BC; break;
   case 0x7F: value = 0x2302; break;
   case 0x80: value = 0x00C7; break;
   case 0x81: value = 0x00FC; break;
@@ -361,6 +421,12 @@ void cp437::walk(It& iterator, int delta) {
     iterator += direction;
     delta -= direction;
   }
+}
+
+template <typename It>
+bool cp437::validate(It iterator, It end) {
+  // CP437 has no invalid characters.
+  return true;
 }
 
 

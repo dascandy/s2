@@ -34,4 +34,27 @@ void utf16::walk(It& iterator, int delta) {
   }
 }
 
+template <typename It>
+bool utf16::validate(It iterator, It end) {
+  bool inPair = false;
+  while (iterator != end) {
+    if (*iterator >= 0xD800 && *iterator < 0xDC00) {
+      if (inPair)
+        return false;
+      else
+        inPair = true;
+    } else if (*iterator >= 0xDC00 && *iterator < 0xE000) {
+      if (!inPair)
+        return false;
+      else
+        inPair = false;
+    } else {
+      if (inPair) 
+        return false;
+    }
+    ++iterator;
+  }
+  return !inPair;
+}
+
 

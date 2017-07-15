@@ -82,4 +82,48 @@ void utf8_modified::walk(It& iterator, int delta) {
   }
 }
 
+template <typename It>
+bool utf8_modified::validate(It iterator, It end) {
+  bool lastWasPair = false;
+  int bytes = 1;
+  int encoding_length = 1;
+  int value = 0;
+  while (iterator != end) {
+    if (*iterator == 0) {
+      return false;
+    } else if (*iterator < 0x80) {
+      if (lastWasPair || bytes > 1) return false;
+    } else if (*iterator < 0xC0) {
+      if (bytes == 1) return false;
+      value = (value << 6) | (*iterator & 0x3F);
+      bytes--;
+      if (bytes == 1) {
+        if (lastWasPair && (value < 0xDC00 || value > 0xE000)) return false;
+        lastWasPair = false;
+        if (value >= 0xD800 && value < 0xDC00)
+          if (lastWasPair)
+            return false;
+          else
+            lastWasPair = true;
+        if (value == 0 && encoding_length != 2) return false;
+        if (value != 0 && value < 0x80 && encoding_length != 1) return false;
+        if (value >= 0x80 && value < 0x800 && encoding_length != 2) return false;
+        if (value >= 0x800 && encoding_length != 3) return false;
+      }
+    } else if (*iterator < 0xE0) {
+      if (lastWasPair || bytes > 1) return false;
+      encoding_length = bytes = 2;
+      value = (*iterator & 0x1F);
+    } else if (*iterator < 0xF0) {
+      if (bytes > 1) return false;
+      encoding_length = bytes = 3;
+      value = (*iterator & 0x0F);
+    } else {
+      return false;
+    }
+    ++iterator;
+  }
+  if (lastWasPair || bytes > 1) return false;
+  return true;
+}
 

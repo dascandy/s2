@@ -8,6 +8,8 @@ struct utf8 {
   static char32_t decode(It& iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
 };
 
 struct utf16 {
@@ -18,6 +20,8 @@ struct utf16 {
   static char32_t decode(It& iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
 };
 
 struct ucs2 {
@@ -28,6 +32,8 @@ struct ucs2 {
   static char32_t decode(It& iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
 };
 
 struct utf32 {
@@ -38,6 +44,8 @@ struct utf32 {
   static char32_t decode(It& iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
 };
 
 struct utf8_modified {
@@ -48,6 +56,8 @@ struct utf8_modified {
   static char32_t decode(It& iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
 };
 
 struct iso8859_1 {
@@ -58,6 +68,8 @@ struct iso8859_1 {
   static char32_t decode(It& iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
 };
 
 struct iso8859_15 {
@@ -68,6 +80,8 @@ struct iso8859_15 {
   static char32_t decode(It& iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
 };
 
 struct cp437 {
@@ -78,6 +92,8 @@ struct cp437 {
   static char32_t decode(It& iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
 };
 
 struct windows1252 {
@@ -88,6 +104,8 @@ struct windows1252 {
   static char32_t decode(It& iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
 };
 
 

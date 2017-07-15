@@ -20,4 +20,12 @@ void utf32::walk(It& iterator, int delta) {
   }
 }
 
+template <typename It>
+bool utf32::validate(It iterator, It end) {
+  for (; iterator != end; ++iterator) {
+    if (*iterator >= 0xD800 && *iterator < 0xE000) return false;
+    if (*iterator >= 0x110000) return false;
+  }
+  return true;
+}
 

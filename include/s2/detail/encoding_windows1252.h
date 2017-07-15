@@ -109,4 +109,12 @@ void windows1252::walk(It& iterator, int delta) {
   }
 }
 
+template <typename It>
+bool windows1252::validate(It iterator, It end) {
+  // Wikipedia indicates that there are 5 undefined positions - 81, 8D, 8F, 90, and 9D - but that 
+  // all of these are to be mapped to the equivalent Unicode value.
+  // In short, nothing to disqualify.
+  return true;
+}
+
 

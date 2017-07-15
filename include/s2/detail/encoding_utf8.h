@@ -53,4 +53,45 @@ void utf8::walk(It& iterator, int delta) {
   }
 }
 
+template <typename It>
+bool utf8::validate(It iterator, It end) {
+  int bytes = 1;
+  int encoding_length = 1;
+  int value = 0;
+  while (iterator != end) {
+    if (*iterator < 0x80) {
+      if (bytes > 1) return false;
+    } else if (*iterator < 0xC0) {
+      if (bytes == 1) return false;
+      value = (value << 6) | (*iterator & 0x3F);
+      bytes--;
+      if (bytes == 1) {
+        if (value >= 0xD800 && value < 0xE000) return false;
+        if (value > 0x110000) return false;
+        if (value < 0x80 && encoding_length != 1) return false;
+        if (value >= 0x80 && value < 0x800 && encoding_length != 2) return false;
+        if (value >= 0x800 && value < 0x10000 && encoding_length != 3) return false;
+        if (value >= 0x10000 && value < 0x110000 && encoding_length != 4) return false;
+      }
+    } else if (*iterator < 0xE0) {
+      if (bytes > 1) return false;
+      encoding_length = bytes = 2;
+      value = (*iterator & 0x1F);
+    } else if (*iterator < 0xF0) {
+      if (bytes > 1) return false;
+      encoding_length = bytes = 3;
+      value = (*iterator & 0x0F);
+    } else if (*iterator < 0xF8) {
+      if (bytes > 1) return false;
+      encoding_length = bytes = 4;
+      value = (*iterator & 0x07);
+    } else {
+      return false;
+    }
+    ++iterator;
+  }
+  if (bytes > 0) return false;
+  return true;
+}
+
 

@@ -20,4 +20,13 @@ void ucs2::walk(It& iterator, int delta) {
   }
 }
 
+template <typename It>
+bool ucs2::validate(It iterator, It end) {
+  while (iterator != end) {
+    if (*iterator >= 0xD800 && *iterator < 0xE000) return false;
+    ++iterator;
+  }
+  return true;
+}
+
 

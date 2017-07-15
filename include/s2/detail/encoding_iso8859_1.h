@@ -21,4 +21,8 @@ void iso8859_1::walk(It& iterator, int delta) {
   }
 }
 
+template <typename It>
+bool iso8859_1::validate(It iterator, It end) {
+  return true;
+}
 
