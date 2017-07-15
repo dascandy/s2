@@ -53,9 +53,31 @@ template <typename It>
 void utf8_modified::walk(It& iterator, int delta) {
   int direction = (delta < 0 ? -1 : +1);
   while (delta != 0) {
-    iterator += direction;
-    // TODO: handle 0xED 0xB? case to treat as not a character
-    while ((*iterator & 0xC0) == 0x80) iterator += direction;
+    if (delta > 0) {
+      uint8_t v1 = *iterator++;
+      if ((v1 & 0xF0) == 0xE0) {
+        uint8_t v2 = *iterator++;
+        ++iterator;
+        if (v1 == 0xED && (v2 & 0xF0) == 0xA0) {
+          ++iterator; ++iterator; ++iterator;
+        }
+      } else if ((v1 & 0xE0) == 0xC0) {
+        ++iterator;
+      }
+    } else {
+      uint8_t v1 = *--iterator;
+      if ((v1 & 0xC0) == 0x80) {
+        uint8_t v2 = *--iterator;
+        if ((v2 & 0xC0) == 0x80) {
+          uint8_t v3 = *--iterator;
+          if ((v3 & 0xF0) == 0xB0 && v2 == 0xED) {
+            --iterator;
+            --iterator;
+            --iterator;
+          }
+        }
+      }
+    }
     delta -= direction;
   }
 }
