@@ -90,7 +90,7 @@ bool utf8::validate(It iterator, It end) {
     }
     ++iterator;
   }
-  if (bytes > 0) return false;
+  if (bytes > 1) return false;
   return true;
 }
 
