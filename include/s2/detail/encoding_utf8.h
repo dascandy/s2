@@ -24,7 +24,7 @@ size_t utf8::encode(It& output, char32_t chr) {
 }
 
 template <typename It>
-char32_t utf8::decode(It& &it) {
+char32_t utf8::decode(It it) {
   uint8_t value = *it++;
   if (value < 0x80) {
     return value;

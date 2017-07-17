@@ -247,7 +247,7 @@ size_t cp437::encode(It& output, char32_t chr) {
 }
 
 template <typename It>
-char32_t cp437::decode(It& iterator) {
+char32_t cp437::decode(It iterator) {
   char32_t value = *it++;
   switch (value) {
   case 0x01: value = 0x263A; break;

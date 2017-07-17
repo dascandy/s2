@@ -14,7 +14,7 @@ size_t utf16::encode(It& output, char32_t chr) {
 }
 
 template <typename It>
-char32_t utf16::decode(It& &it) {
+char32_t utf16::decode(It it) {
   uint16_t value = *it++;
   if (value >= 0xD800 && value <= 0xE000) {
     uint16_t value2 = *it++;

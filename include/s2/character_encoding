@@ -5,7 +5,7 @@ struct utf8 {
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
-  static char32_t decode(It& iterator);
+  static char32_t decode(It iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
   template <typename It>
@@ -17,7 +17,7 @@ struct utf16 {
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
-  static char32_t decode(It& iterator);
+  static char32_t decode(It iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
   template <typename It>
@@ -29,7 +29,7 @@ struct ucs2 {
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
-  static char32_t decode(It& iterator);
+  static char32_t decode(It iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
   template <typename It>
@@ -41,7 +41,7 @@ struct utf32 {
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
-  static char32_t decode(It& iterator);
+  static char32_t decode(It iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
   template <typename It>
@@ -53,7 +53,7 @@ struct utf8_modified {
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
-  static char32_t decode(It& iterator);
+  static char32_t decode(It iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
   template <typename It>
@@ -65,7 +65,7 @@ struct iso8859_1 {
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
-  static char32_t decode(It& iterator);
+  static char32_t decode(It iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
   template <typename It>
@@ -77,7 +77,7 @@ struct iso8859_15 {
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
-  static char32_t decode(It& iterator);
+  static char32_t decode(It iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
   template <typename It>
@@ -89,7 +89,7 @@ struct cp437 {
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
-  static char32_t decode(It& iterator);
+  static char32_t decode(It iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
   template <typename It>
@@ -101,7 +101,7 @@ struct windows1252 {
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
-  static char32_t decode(It& iterator);
+  static char32_t decode(It iterator);
   template <typename It>
   static void walk(It& iterator, int delta);
   template <typename It>

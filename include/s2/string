@@ -1,6 +1,7 @@
 #pragma once
 
 #include <s2/vector>
+#include <tuple>
 
 namespace s2 {
 
@@ -16,33 +17,123 @@ namespace encoding {
   class utf8_modified;
 }
 
-template <typename encoding = s2::encoding::utf8>
-class string {
+template <typename... Ts>
+class rope {
 public:
-  auto empty() const { return storage_.size() == 1; }
-  size_t size() const { return storage_.size() - 1; }
-  size_t capacity() const { return storage_.capacity() - 1; }
-  void reserve(size_t cap) { storage_.reserve(cap + 1); }
-  void shrink_to_fit() { storage_.shrink_to_fit(); }
+  rope(std::tuple<Ts...> t) : t(t) {}
+  template <typename encoding = s2::encoding::utf8>
+  string<encoding> str();
+  template <typename T2>
+  rope<Ts..., T2> operator+(T2&& t2) {
+    return rope<Ts..., T2>(std::tuple_cat(t, std::tuple<T2>(std::forward<T2>(t2))));
+  }
+private:
+  std::tuple<Ts...> t;
+};
+
+template <typename encoding = s2::encoding::utf8>
+class string_view {
+public:
+  size_t size() const { return size_;
+  size_t length() const { return size(); }
   void clear() { storage_.clear(); storage_.push_back(0); }
-  auto begin() { return storage_.begin(); }
-  auto end() { return --storage_.end(); }
-  auto begin() const { return storage_.begin(); }
-  auto end() const { return --storage_.end(); }
-  auto at(size_t n) { if (n >= size()) throw std::out_of_range(); return storage_[n]; }
-  auto at(size_t n) const { if (n >= size()) throw std::out_of_range(); return storage_[n]; }
-  auto operator[](size_t n) { assert(n < size()); return storage_[n]; }
-  auto operator[](size_t n) const { assert(n < size()); return storage_[n]; }
-  auto front() { return storage_.front(); }
-  auto front() const { return storage_.front(); }
-  auto back() { return storage_.back(); }
-  auto back() const { return storage_.back(); }
+  auto begin() const { return string_iterator<encoding>(storage_.begin()); }
+  auto end() const { return string_iterator<encoding>(--storage_.end()); }
+  template <typename T2>
+  rope<string_view<encoding>, T2> 
+
+  auto front() { return *begin(); }
+  auto front() const { return *begin(); }
+  auto back() { return *--end(); }
+  auto back() const { return *--end(); }
   auto c_str() const { return storage_.data(); }
   auto data() const { return storage_.data(); }
-  std::vector<typename encoding::inner_type> &storage() { return storage_; }
-  const std::vector<typename encoding::inner_type> &storage() const { return storage_; }
+  auto empty() const { return size_ == 0; }
+
+  class string_iterator {
+  private:
+    vector<typename encoding::storage_type>::const_iterator it_;
+  public:
+    char32_t operator*() {
+      return encoding::decode(it_);
+    }
+    auto operator++() {
+      encoding::walk(it_, 1);
+      return *this;
+    }
+    auto operator++(int) {
+      string_iterator<encoding> copy = *this;
+      encoding::walk(it_, 1);
+      return copy;
+    }
+    auto operator--() {
+      encoding::walk(it_, -1);
+      return *this;
+    }
+    auto operator--(int) {
+      string_iterator<encoding> copy = *this;
+      encoding::walk(it_, -1);
+      return copy;
+    }
+    bool operator==(const string_iterator<encoding>& rhs) {
+      return rhs.it_ == it_;
+    }
+    bool operator!=(const string_iterator<encoding>& rhs) {
+      return rhs.it_ != it_;
+    }
+  };
 private:
-  vector<typename encoding::inner_type> storage_;
+  const T* ptr;
+  size_t size_;
+};
+
+template <typename encoding = s2::encoding::utf8>
+class string
+{
+public:
+  string() : storage_(1) {}
+  string(const string<encoding>& sv) : storage_(sv.storage_) {}
+  string(const string_view<encoding>& sv) : storage_(sv.data(), sv.data() + sv.size()) {
+    storage_.push_back(0);
+  }
+  template <size_t N>
+  string(vector<typename encoding::storage_type, N>&& sv) : storage_(std::forward(sv)) {
+    if (storage_.back() != 0) storage_.push_back(0);
+  }
+  template <size_t N>
+  string(const vector<typename encoding::storage_type, N>& sv) : storage_(sv) {
+    if (storage_.back() != 0) storage_.push_back(0);
+  }
+  template <typename SEncoding>
+  string(const string_view<SEncoding>& sv) {
+    template <typename T>
+    struct null_iterator {
+      T& operator*() { return t; }
+      auto operator++() { return *this; }
+      auto operator--() { return *this; }
+      auto operator++(int) { return *this; }
+      auto operator--(int) { return *this; }
+    private:
+      T t;
+    };
+    null_iterator<typename encoding::storage_type> n;
+    size_t unitcount = 1;
+    for (auto c : sv) {
+      unitcount += encoding::encode(n, c);
+    }
+    storage_.reserve(unitcount);
+    auto ins = std::back_inserter(storage_);
+    for (auto c : sv) {
+      encoding::encode(ins, c);
+    }
+    storage_.push_back(0);
+  }
+  const typename encoding::storage_type* data() const { return storage_.data(); }
+  const typename encoding::storage_type* c_str() const { return storage_.data(); }
+  operator string_view<encoding>() { return string_view<encoding>(storage_.data(), storage_.size() - 1); }
+  const std::vector<typename encoding::storage_type> &storage() const { return storage_; }
+private:
+  vector<typename encoding::storage_type, 32> storage_;
 };
 
 }

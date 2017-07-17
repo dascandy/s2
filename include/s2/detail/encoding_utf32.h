@@ -7,7 +7,7 @@ size_t utf32::encode(It& output, char32_t chr) {
 }
 
 template <typename It>
-char32_t utf32::decode(It& &it) {
+char32_t utf32::decode(It it) {
   return *it++;
 }
 

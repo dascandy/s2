@@ -66,7 +66,7 @@ size_t windows1252::encode(It& output, char32_t chr) {
 }
 
 template <typename It>
-char32_t windows1252::decode(It& iterator) {
+char32_t windows1252::decode(It iterator) {
   char32_t value = *it++;
   switch (value) {
     case 0x80: value = 0x20AC; break;

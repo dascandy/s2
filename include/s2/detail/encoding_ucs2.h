@@ -7,7 +7,7 @@ size_t ucs2::encode(It& output, char32_t chr) {
 }
 
 template <typename It>
-char32_t ucs2::decode(It& &it) {
+char32_t ucs2::decode(It it) {
   return *it++;
 }
 
