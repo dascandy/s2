@@ -1,3 +1,50 @@
 #pragma once
 
+#include <s2/vector>
+
+namespace s2 {
+
+namespace encoding {
+  class utf8;
+  class windows1252;
+  class cp437;
+  class iso8859_1;
+  class iso8859_15;
+  class utf16;
+  class utf32;
+  class ucs2;
+  class utf8_modified;
+}
+
+template <typename encoding = s2::encoding::utf8>
+class string {
+public:
+  auto empty() const { return storage_.size() == 1; }
+  size_t size() const { return storage_.size() - 1; }
+  size_t capacity() const { return storage_.capacity() - 1; }
+  void reserve(size_t cap) { storage_.reserve(cap + 1); }
+  void shrink_to_fit() { storage_.shrink_to_fit(); }
+  void clear() { storage_.clear(); storage_.push_back(0); }
+  auto begin() { return storage_.begin(); }
+  auto end() { return --storage_.end(); }
+  auto begin() const { return storage_.begin(); }
+  auto end() const { return --storage_.end(); }
+  auto at(size_t n) { if (n >= size()) throw std::out_of_range(); return storage_[n]; }
+  auto at(size_t n) const { if (n >= size()) throw std::out_of_range(); return storage_[n]; }
+  auto operator[](size_t n) { assert(n < size()); return storage_[n]; }
+  auto operator[](size_t n) const { assert(n < size()); return storage_[n]; }
+  auto front() { return storage_.front(); }
+  auto front() const { return storage_.front(); }
+  auto back() { return storage_.back(); }
+  auto back() const { return storage_.back(); }
+  auto c_str() const { return storage_.data(); }
+  auto data() const { return storage_.data(); }
+  std::vector<typename encoding::inner_type> &storage() { return storage_; }
+  const std::vector<typename encoding::inner_type> &storage() const { return storage_; }
+private:
+  vector<typename encoding::inner_type> storage_;
+};
+
+}
+
 
