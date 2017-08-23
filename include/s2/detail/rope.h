@@ -1,10 +1,5 @@
 #pragma once
 
-#include <s2/vector>
-#include <tuple>
-#include <s2/detail/encoding_utf8.h>
-#include <s2/detail/null_iterator.h>
-
 namespace s2 {
 
 template <typename encoding, typename T>
