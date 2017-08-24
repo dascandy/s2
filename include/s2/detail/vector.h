@@ -186,7 +186,7 @@ vector<T, maxsize>::vector(std::initializer_list<T> init) {
 
 template<class T, size_t maxsize>
 vector<T, maxsize>::~vector() {
-  resize(0);
+  clear();
   shrink_to_fit();
 }
 
@@ -212,15 +212,18 @@ void vector<T, maxsize>::assign(std::initializer_list<T> ilist) {
 }
 
 template<class T, size_t maxsize>
-void vector<T, maxsize>::resize(size_t newSize) {
-  if (newSize <= size()) {
-    while (newSize < size())
-      pop_back();
-    return;
+void vector<T, maxsize>::truncate(size_t newSize) {
+  for (size_t n = v->size(); n --> newSize;) {
+    v->ptr()[n].~T();
   }
-  while (newSize > size()) {
-    push_back(T());
-  }
+
+  if (v->isExternal()) 
+    reinterpret_cast<inner*>(&v->storage)->size_ = newSize; 
+  else 
+    v->innerSize_ = newSize;
+}
+  while (newSize < size())
+    pop_back();
 }
 
 template<class T, size_t maxsize>
@@ -266,7 +269,7 @@ T& vector<T, maxsize>::back() {
 
 template<class T, size_t maxsize>
 void vector<T, maxsize>::clear() noexcept {
-  resize(0); 
+  truncate(0);
 }
 
 template<class T, size_t maxsize>

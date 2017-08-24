@@ -51,7 +51,7 @@ public:
   template <typename IT>
   void assign(IT first, IT last);
   void assign(std::initializer_list<T> ilist);
-  void resize(size_t newSize);
+  void truncate(size_t newSize);
   const T* data();
   const T& operator[](size_t index) const noexcept;
   T& operator[](size_t index) noexcept;
