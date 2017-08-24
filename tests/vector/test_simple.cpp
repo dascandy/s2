@@ -48,7 +48,7 @@ TEST_CASE("can store noncopyables", "[vector]") {
   ncs.push_back(nc());
   ncs.emplace_back();
   ncs.pop_back();
-  ncs.resize(0);
+  ncs.truncate(0);
 }
 
 template <size_t n>

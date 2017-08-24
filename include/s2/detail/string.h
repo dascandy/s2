@@ -2,6 +2,7 @@
 
 #include <s2/vector>
 #include <s2/detail/encoding_utf8.h>
+#include <s2/detail/string_view.h>
 
 namespace s2 {
 
@@ -9,17 +10,17 @@ template <typename encoding = s2::encoding::utf8>
 class string
 {
 public:
-  string() : storage_(1) {}
+  string() { storage_.push_back(0); }
   string(const string<encoding>& sv) : storage_(sv.storage_) {}
   string(const string_view<encoding>& sv) : storage_(sv.data(), sv.data() + sv.size()) {
     storage_.push_back(0);
   }
   template <size_t N>
-  string(vector<typename encoding::storage_type, N>&& sv) : storage_(std::forward(sv)) {
+  explicit string(vector<typename encoding::storage_type, N>&& sv) : storage_(std::move(sv)) {
     if (storage_.back() != 0) storage_.push_back(0);
   }
   template <size_t N>
-  string(const vector<typename encoding::storage_type, N>& sv) : storage_(sv) {
+  explicit string(const vector<typename encoding::storage_type, N>& sv) : storage_(sv) {
     if (storage_.back() != 0) storage_.push_back(0);
   }
   template <typename... Ts>
@@ -30,7 +31,7 @@ public:
   template <typename... Ts>
   string& operator+=(rope<Ts...>&& r) {
     size_t strl = get_string_length<encoding>(r);
-    storage_.reserve(storage.size() + strl + 1);
+    storage_.reserve(storage_.size() + strl);
     get_string_contents<encoding>(std::back_inserter(storage_), std::forward(r));
     return *this;
   }
@@ -61,9 +62,9 @@ public:
   const typename encoding::storage_type* data() const { return storage_.data(); }
   const typename encoding::storage_type* c_str() const { return storage_.data(); }
   operator string_view<encoding>() { return string_view<encoding>(storage_.data(), storage_.size() - 1); }
-  const std::vector<typename encoding::storage_type> &storage() const { return storage_; }
+  const s2::vector<typename encoding::storage_type> &storage() const { return storage_; }
 private:
-  vector<typename encoding::storage_type, 32> storage_;
+  s2::vector<typename encoding::storage_type, 32> storage_;
 };
 
 }

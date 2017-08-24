@@ -213,17 +213,14 @@ void vector<T, maxsize>::assign(std::initializer_list<T> ilist) {
 
 template<class T, size_t maxsize>
 void vector<T, maxsize>::truncate(size_t newSize) {
-  for (size_t n = v->size(); n --> newSize;) {
-    v->ptr()[n].~T();
+  for (size_t n = size(); n --> newSize;) {
+    ptr()[n].~T();
   }
 
-  if (v->isExternal()) 
-    reinterpret_cast<inner*>(&v->storage)->size_ = newSize; 
+  if (isExternal()) 
+    reinterpret_cast<inner*>(&storage)->size_ = newSize; 
   else 
-    v->innerSize_ = newSize;
-}
-  while (newSize < size())
-    pop_back();
+    innerSize_ = newSize;
 }
 
 template<class T, size_t maxsize>

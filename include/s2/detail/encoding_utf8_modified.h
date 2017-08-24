@@ -1,5 +1,17 @@
 #pragma once
 
+struct utf8_modified {
+  using storage_type = uint8_t;
+  template <typename It>
+  static size_t encode(It& output, char32_t chr);
+  template <typename It>
+  static char32_t decode(It iterator);
+  template <typename It>
+  static void walk(It& iterator, int delta);
+  template <typename It>
+  static bool validate(It iterator, It end);
+};
+
 template <typename It>
 size_t utf8_modified::encode(It& output, char32_t chr) {
   if (chr < 0x80 && chr != 0) {

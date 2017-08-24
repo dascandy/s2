@@ -10,6 +10,7 @@ project(tests)
 add_executable(${PROJECT_NAME}
   future/test_simple.cpp
   vector/test_simple.cpp
+  string/test_simple.cpp
   functional/test_simple.cpp
   main.cpp
 )
