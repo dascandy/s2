@@ -4,19 +4,10 @@
 
 namespace s2 {
 
-template <typename encoding = s2::encoding::utf8>
-class string_view {
+template <typename encoding>
+class basic_string_view {
 public:
-  template <typename = typename std::enable_if_t<std::is_same<typename encoding::storage_type, uint8_t>::value>>
-  string_view(const char* data) : ptr_(reinterpret_cast<const uint8_t*>(data)), size_(0) {
-    while (data[size_++]) {}
-  }
-  template <typename = typename std::enable_if_t<std::is_same<typename encoding::storage_type, uint16_t>::value>>
-  string_view(const char16_t* data) : ptr_(reinterpret_cast<const uint16_t*>(data)), size_(0) {
-    while (data[size_++]) {}
-  }
-  template <typename = typename std::enable_if_t<std::is_same<typename encoding::storage_type, uint32_t>::value>>
-  string_view(const char32_t* data) : ptr_(reinterpret_cast<const uint32_t*>(data)), size_(0) {
+  basic_string_view(const typename encoding::char_type* data) : ptr_(reinterpret_cast<const typename encoding::storage_type*>(data)), size_(0) {
     while (data[size_++]) {}
   }
   size_t size() const { return size_; }
@@ -24,8 +15,8 @@ public:
   auto begin() const { return string_iterator(ptr_); }
   auto end() const { return string_iterator(ptr_ + size()); }
   template <typename T2>
-  rope<string_view<encoding>, T2> operator+(T2 t2) {
-    return rope<string_view<encoding>, T2>(*this, t2);
+  rope<basic_string_view<encoding>, T2> operator+(T2 t2) {
+    return rope<basic_string_view<encoding>, T2>(*this, t2);
   }
 
   auto front() { return *begin(); }
@@ -72,6 +63,8 @@ private:
   const typename encoding::storage_type* ptr_;
   size_t size_;
 };
+
+using string_view = basic_string_view<s2::encoding::utf8>;
 
 }
 

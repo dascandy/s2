@@ -2,6 +2,7 @@
 
 struct utf8_modified {
   using storage_type = uint8_t;
+  using char_type = char;
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>

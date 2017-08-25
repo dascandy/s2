@@ -2,6 +2,7 @@
 
 struct utf32 {
   using storage_type = uint32_t;
+  using char_type = char32_t;
   template <typename It>
   static size_t encode(It& output, char32_t chr);
   template <typename It>
