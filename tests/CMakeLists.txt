@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME}
   future/test_simple.cpp
   vector/test_simple.cpp
   string/test_simple.cpp
+  string/test_utf8.cpp
   functional/test_simple.cpp
   main.cpp
 )

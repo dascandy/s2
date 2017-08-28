@@ -82,7 +82,7 @@ bool utf8::validate(It iterator, It end) {
       bytes--;
       if (bytes == 1) {
         if (value >= 0xD800 && value < 0xE000) return false;
-        if (value > 0x110000) return false;
+        if (value >= 0x110000) return false;
         if (value < 0x80 && encoding_length != 1) return false;
         if (value >= 0x80 && value < 0x800 && encoding_length != 2) return false;
         if (value >= 0x800 && value < 0x10000 && encoding_length != 3) return false;
