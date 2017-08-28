@@ -34,16 +34,16 @@ public:
   }
   template <typename... Ts>
   basic_string& operator+=(rope<Ts...>&& r) {
-    size_t strl = get_string_length<encoding>(r);
+    size_t strl = get_string_length<encoding>(r.t);
     storage_.reserve(storage_.size() + strl);
-    get_string_contents<encoding>(std::back_inserter(storage_), std::forward(r));
+    get_string_contents<encoding>(std::back_inserter(storage_), std::move(r.t));
     return *this;
   }
   template <typename... Ts>
   basic_string(rope<Ts...>&& r) {
-    size_t strl = get_string_length<encoding>(r);
+    size_t strl = get_string_length<encoding>(r.t);
     storage_.reserve(strl + 1);
-    get_string_contents<encoding>(std::back_inserter(storage_), std::forward(r));
+    get_string_contents<encoding>(std::back_inserter(storage_), std::move(r.t));
   }
   template <typename SEncoding>
   basic_string(const basic_string_view<SEncoding>& sv) {

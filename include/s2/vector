@@ -27,6 +27,7 @@ class alignas(max(alignof(T), alignof(T*))) vector
   bool isExternal() const;
   T* ptr();
 public:
+  using value_type = T;
   struct iterator;
   struct const_iterator;
   iterator begin();
