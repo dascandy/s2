@@ -21,10 +21,8 @@ public:
   , size_(size)
   {}
   basic_string_view(const typename encoding::char_type* data) : basic_string_view(data, string_length(data)) {}
-  size_t size() const { return size_; }
-  size_t length() const { return size(); }
   auto begin() const { return string_iterator(ptr_); }
-  auto end() const { return string_iterator(ptr_ + size()); }
+  auto end() const { return string_iterator(ptr_ + size_); }
   template <typename T2>
   rope<basic_string_view<encoding>, T2> operator+(T2 t2) {
     return rope<basic_string_view<encoding>, T2>(std::tuple<basic_string_view<encoding>, T2>(*this, t2));
@@ -40,8 +38,9 @@ public:
 
   class string_iterator {
   private:
-    typename vector<typename encoding::storage_type>::const_iterator it_;
+    const typename encoding::storage_type* it_;
   public:
+    string_iterator(const typename encoding::storage_type* it) : it_(it) {}
     char32_t operator*() {
       return encoding::decode(it_);
     }
@@ -70,27 +69,36 @@ public:
       return rhs.it_ != it_;
     }
   };
-private:
+//private:
   const typename encoding::storage_type* ptr_;
   size_t size_;
+/*
+  template <typename E>
+  friend bool operator==(const basic_string_view<E>& l, const basic_string_view<E>& r);
+*/
+  template <typename E1, typename E2>
+  friend bool operator==(const basic_string_view<E1>& l, const basic_string_view<E2>& r);
 };
 
 // Specialization for equal encoding, because then we skip the decoding overhead.
+// TODO: check if there is no encoding with overlong encoding allowance, because that breaks this.
+/*
 template <typename E>
 bool operator==(const basic_string_view<E>& l, const basic_string_view<E>& r) {
-  auto lc = l.storage_.begin(), rc = r.storage_.begin();
-  auto lend = l.storage_.end(), rend = r.storage_.end();
-  while (lc != lend && rc != r.end && *lc == *rc) { ++lc; ++rc; }
-  return (lc == lend && rc == rend);
+  if (l.size_ != r.size_) return false;
+  auto lc = l.ptr_, rc = r.ptr_;
+  auto lend = l.ptr_ + l.size_, rend = r.ptr_ + r.size_;
+  while (lc != lend && *lc == *rc) { ++lc; ++rc; }
+  return (lc == lend);
 }
-
+*/
 template <typename E1, typename E2>
 bool operator==(const basic_string_view<E1>& l, const basic_string_view<E2>& r) {
   auto lc = l.begin();
   auto lend = l.end();
   auto rc = r.begin();
   auto rend = r.end();
-  while (lc != lend && rc != r.end && *lc == *rc) { ++lc; ++rc; }
+  while (lc != lend && rc != rend && *lc == *rc) { ++lc; ++rc; }
   return (lc == lend && rc == rend);
 }
 

@@ -44,6 +44,7 @@ public:
     size_t strl = get_string_length<encoding>(r.t);
     storage_.reserve(strl + 1);
     get_string_contents<encoding>(std::back_inserter(storage_), std::move(r.t));
+    storage_.push_back(0);
   }
   template <typename SEncoding>
   basic_string(const basic_string_view<SEncoding>& sv) {
