@@ -1,5 +1,7 @@
 #pragma once
 
+namespace s2::encoding {
+
 struct utf8_modified {
   using storage_type = uint8_t;
   using char_type = char;
@@ -111,13 +113,9 @@ bool utf8_modified::validate(It iterator, It end) {
       value = (value << 6) | (*iterator & 0x3F);
       bytes--;
       if (bytes == 1) {
-        if (lastWasPair && (value < 0xDC00 || value > 0xE000)) return false;
-        lastWasPair = false;
-        if (value >= 0xD800 && value < 0xDC00)
-          if (lastWasPair)
-            return false;
-          else
-            lastWasPair = true;
+        if (!lastWasPair && (value >= 0xDC00 && value < 0xE000)) return false;
+        if (lastWasPair && (value < 0xDC00 || value >= 0xE000)) return false;
+        lastWasPair = (value >= 0xD800 && value < 0xDC00);
         if (value == 0 && encoding_length != 2) return false;
         if (value != 0 && value < 0x80 && encoding_length != 1) return false;
         if (value >= 0x80 && value < 0x800 && encoding_length != 2) return false;
@@ -139,4 +137,7 @@ bool utf8_modified::validate(It iterator, It end) {
   if (lastWasPair || bytes > 1) return false;
   return true;
 }
+
+}
+
 

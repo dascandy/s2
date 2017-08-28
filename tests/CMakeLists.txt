@@ -12,6 +12,7 @@ add_executable(${PROJECT_NAME}
   vector/test_simple.cpp
   string/test_simple.cpp
   string/test_utf8.cpp
+  string/test_utf8_modified.cpp
   functional/test_simple.cpp
   main.cpp
 )
