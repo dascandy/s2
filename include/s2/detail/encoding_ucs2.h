@@ -1,5 +1,7 @@
 #pragma once
 
+namespace s2::encoding {
+
 struct ucs2 {
   using storage_type = uint16_t;
   using char_type = char16_t;
@@ -40,6 +42,8 @@ bool ucs2::validate(It iterator, It end) {
     ++iterator;
   }
   return true;
+}
+
 }
 
 

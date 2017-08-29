@@ -1,5 +1,7 @@
 #pragma once
 
+namespace s2::encoding {
+
 struct cp437 {
   using storage_type = uint8_t;
   using char_type = char;
@@ -260,7 +262,7 @@ size_t cp437::encode(It& output, char32_t chr) {
 }
 
 template <typename It>
-char32_t cp437::decode(It iterator) {
+char32_t cp437::decode(It it) {
   char32_t value = *it++;
   switch (value) {
   case 0x01: value = 0x263A; break;
@@ -440,6 +442,8 @@ template <typename It>
 bool cp437::validate(It iterator, It end) {
   // CP437 has no invalid characters.
   return true;
+}
+
 }
 
 

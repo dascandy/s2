@@ -1,5 +1,7 @@
 #pragma once
 
+namespace s2::encoding {
+
 struct iso8859_1 {
   using storage_type = uint8_t;
   using char_type = char;
@@ -21,7 +23,7 @@ size_t iso8859_1::encode(It& output, char32_t chr) {
 }
 
 template <typename It>
-char32_t iso8859_1::decode(It iterator) {
+char32_t iso8859_1::decode(It it) {
   return *it++;
 }
 
@@ -37,5 +39,7 @@ void iso8859_1::walk(It& iterator, int delta) {
 template <typename It>
 bool iso8859_1::validate(It iterator, It end) {
   return true;
+}
+
 }
 

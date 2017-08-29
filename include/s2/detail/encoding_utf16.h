@@ -1,5 +1,7 @@
 #pragma once
 
+namespace s2::encoding {
+
 struct utf16 {
   using storage_type = uint16_t;
   using char_type = char16_t;
@@ -68,6 +70,8 @@ bool utf16::validate(It iterator, It end) {
     ++iterator;
   }
   return !inPair;
+}
+
 }
 
 

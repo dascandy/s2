@@ -10,9 +10,16 @@ project(tests)
 add_executable(${PROJECT_NAME}
   future/test_simple.cpp
   vector/test_simple.cpp
+  string/test_cp437.cpp
+  string/test_iso8859_1.cpp
+  string/test_iso8859_15.cpp
   string/test_simple.cpp
+  string/test_ucs2.cpp
+  string/test_utf16.cpp
+  string/test_utf32.cpp
   string/test_utf8.cpp
   string/test_utf8_modified.cpp
+  string/test_windows1252.cpp
   functional/test_simple.cpp
   main.cpp
 )

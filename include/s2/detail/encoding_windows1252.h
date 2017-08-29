@@ -1,5 +1,7 @@
 #pragma once
 
+namespace s2::encoding {
+
 struct windows1252 {
   using storage_type = uint8_t;
   using char_type = char;
@@ -79,7 +81,7 @@ size_t windows1252::encode(It& output, char32_t chr) {
 }
 
 template <typename It>
-char32_t windows1252::decode(It iterator) {
+char32_t windows1252::decode(It it) {
   char32_t value = *it++;
   switch (value) {
     case 0x80: value = 0x20AC; break;
@@ -128,6 +130,8 @@ bool windows1252::validate(It iterator, It end) {
   // all of these are to be mapped to the equivalent Unicode value.
   // In short, nothing to disqualify.
   return true;
+}
+
 }
 
 

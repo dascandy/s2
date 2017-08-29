@@ -49,7 +49,7 @@ char32_t utf8::decode(It it) {
   } else if (value < 0xF0) {
     uint8_t v2 = *it++;
     uint8_t v3 = *it++;
-    return ((value & 0xF) << 12) | ((v2 & 0x3F) << 6) | ((v2 & 0x3F) << 0);
+    return ((value & 0xF) << 12) | ((v2 & 0x3F) << 6) | ((v3 & 0x3F) << 0);
   } else {
     uint8_t v2 = *it++;
     uint8_t v3 = *it++;

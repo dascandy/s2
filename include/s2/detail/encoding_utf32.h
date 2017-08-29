@@ -1,5 +1,7 @@
 #pragma once
 
+namespace s2::encoding {
+
 struct utf32 {
   using storage_type = uint32_t;
   using char_type = char32_t;
@@ -41,4 +43,7 @@ bool utf32::validate(It iterator, It end) {
   }
   return true;
 }
+
+}
+
 
