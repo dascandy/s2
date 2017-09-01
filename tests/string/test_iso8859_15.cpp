@@ -16,6 +16,12 @@ TEST_CASE("iso8859_15 converts unknowns to question marks", "[string/iso8859_15]
   REQUIRE(winstring2.view() == ustring3);
 }
 
+TEST_CASE("iso8859_15 special cases", "[string/iso8859_15]") {
+  s2::basic_string_view<s2::encoding::iso8859_15> s1("\xA4 \xA6 \xA8 \xB4 \xB8 \xBC \xBD \xBE");
+  s2::string_view s2("€ Š š Ž ž Œ œ Ÿ");
+  REQUIRE(s1 == s2);
+}
+
 TEST_CASE("iso8859_15 differs from _1", "[string/iso8859_15]") {
   s2::basic_string_view<s2::encoding::iso8859_15> v("\xA4 \xA8");
   s2::string_view v2("€ š");

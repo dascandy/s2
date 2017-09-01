@@ -1,5 +1,6 @@
 #include <s2/string>
 #include "catch.hpp"
+#include <s2/detail/encoding_utf16.h>
 
 struct entry {
   const uint8_t* p;
@@ -14,6 +15,12 @@ struct entry {
 
 #define VALID(x) CASE(x, true)
 #define INVALID(x) CASE(x, false)
+
+TEST_CASE("UTF8 check writing and reading of characters") {
+  s2::basic_string<s2::encoding::utf16> u16s(u"uÜℵ💩"); // 1, 2, 3 and 4 byte characters. u, U umlaut, aleph and poop.
+  s2::basic_string<s2::encoding::utf8> u8s = u16s.view();
+  REQUIRE(u8s.view() == u16s.view());
+}
 
 VALID("\x00");
 VALID("\x01");

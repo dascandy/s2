@@ -32,6 +32,8 @@ VALID(u"\xFEFF");
 VALID(u"\xFFFD");
 VALID(u"\xFFFE");
 VALID(u"\xFFFF");
+INVALID(u"\xD800\x0000");
+INVALID(u"\xD800\xDA00");
 INVALID(u"\xD800");
 INVALID(u"\xDBFF");
 INVALID(u"\xDC00");
