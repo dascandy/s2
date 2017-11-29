@@ -59,7 +59,7 @@ namespace s2 {
       if (state != Empty) getStorage()->~IStorage();
       switch(f.state) {
       case Empty: break;
-      case Internal: f.storage->moveTo(&storage); state = Internal; break;
+      case Internal: reinterpret_cast<IStorage*>(f.storage)->moveTo(&storage); state = Internal; break;
       case External: reinterpret_cast<IStorage*>(storage) = reinterpret_cast<IStorage*>(f.storage); break;
       }
       f.state = Empty;

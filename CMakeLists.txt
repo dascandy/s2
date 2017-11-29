@@ -2,8 +2,8 @@
 # Copyright (C) MyExampleCompany. All rights reserved.
 #
 
-set(CMAKE_CXX_COMPILER /usr/bin/clang++)
-set(CMAKE_CC_COMPILER /usr/bin/clang)
+#set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+#set(CMAKE_CC_COMPILER /usr/bin/clang)
 set(CMAKE_CXX_FLAGS "-std=c++1z -g -pthread")
 
 #if (COVERAGE)

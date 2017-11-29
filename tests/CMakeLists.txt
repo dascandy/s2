@@ -18,6 +18,7 @@ add_executable(${PROJECT_NAME}
   string/test_utf8.cpp
   string/test_utf8_modified.cpp
   string/test_windows1252.cpp
+  string/test_wtf8.cpp
   vector/test_simple.cpp
 )
 target_include_directories(${PROJECT_NAME}
