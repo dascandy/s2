@@ -1,45 +1,17 @@
 #pragma once
 
+#include <s2/detail/encoding.h>
+#include <s2/detail/raw_encoding_iso8859_1.h>
+
 namespace s2::encoding {
 
-struct iso8859_1 {
-  using storage_type = uint8_t;
-  using char_type = char;
+struct iso8859_1 : raw::iso8859_1 {
+  static constexpr validation_result allowed = validation::raw_zero;
   template <typename It>
-  static size_t encode(It& output, char32_t chr);
-  template <typename It>
-  static char32_t decode(It iterator);
-  template <typename It>
-  static void walk(It& iterator, int delta);
-  template <typename It>
-  static bool validate(It iterator, It end);
-};
-
-template <typename It>
-size_t iso8859_1::encode(It& output, char32_t chr) {
-  if (chr > 255) *output++ = '?';
-  else *output++ = chr;
-  return 1;
-}
-
-template <typename It>
-char32_t iso8859_1::decode(It it) {
-  return *it++;
-}
-
-template <typename It>
-void iso8859_1::walk(It& iterator, int delta) {
-  int direction = (delta < 0 ? -1 : +1);
-  while (delta != 0) {
-    iterator += direction;
-    delta -= direction;
+  static bool validate(It iterator, It end) {
+    return (validate_raw(iterator, end) & (~allowed)) == 0;
   }
-}
-
-template <typename It>
-bool iso8859_1::validate(It iterator, It end) {
-  return true;
-}
+};
 
 }
 
