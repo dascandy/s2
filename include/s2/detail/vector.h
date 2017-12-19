@@ -38,6 +38,11 @@ T* vector<T, maxsize>::ptr() {
 }
 
 template<class T, size_t maxsize>
+const T* vector<T, maxsize>::ptr() const {
+  return isExternal() ? reinterpret_cast<const inner*>(&storage)->ptr_ : reinterpret_cast<const T*>(&storage);
+}
+
+template<class T, size_t maxsize>
 size_t vector<T, maxsize>::capacity() const {
   return isExternal() ? reinterpret_cast<const inner*>(&storage)->capacity_ : innerCapacity_;
 }
@@ -224,7 +229,12 @@ void vector<T, maxsize>::truncate(size_t newSize) {
 }
 
 template<class T, size_t maxsize>
-const T* vector<T, maxsize>::data() {
+T* vector<T, maxsize>::data() {
+  return ptr();
+}
+
+template<class T, size_t maxsize>
+const T* vector<T, maxsize>::data() const {
   return ptr();
 }
 

@@ -66,8 +66,8 @@ public:
   }
   const typename encoding::storage_type* data() const { return storage_.data(); }
   const typename encoding::storage_type* c_str() const { return storage_.data(); }
-  basic_string_view<encoding> view() { return basic_string_view<encoding>(storage_.data(), storage_.size() - 1); }
-  operator basic_string_view<encoding>() { return view(); }
+  basic_string_view<encoding> view() const { return basic_string_view<encoding>(storage_.data(), storage_.size() - 1); }
+  operator basic_string_view<encoding>() const { return view(); }
   const s2::vector<typename encoding::storage_type> &storage() const { return storage_; }
 private:
   s2::vector<typename encoding::storage_type, 32> storage_;

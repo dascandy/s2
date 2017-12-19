@@ -7,6 +7,7 @@
 #include <s2/detail/rope.h>
 #include <s2/detail/string.h>
 #include <s2/detail/string_view.h>
+#include <s2/detail/string_algorithm.h>
 #include <s2/detail/rope_detail.h>
 
 

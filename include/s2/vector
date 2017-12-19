@@ -26,6 +26,7 @@ class alignas(max(alignof(T), alignof(T*))) vector
   static_assert(innerCapacity_ < 255, "Cannot make a local storage of larger than 255 local items");
   bool isExternal() const;
   T* ptr();
+  const T* ptr() const;
 public:
   using value_type = T;
   struct iterator;
@@ -53,7 +54,8 @@ public:
   void assign(IT first, IT last);
   void assign(std::initializer_list<T> ilist);
   void truncate(size_t newSize);
-  const T* data();
+  T* data();
+  const T* data() const;
   const T& operator[](size_t index) const noexcept;
   T& operator[](size_t index) noexcept;
   const T& at(size_t index) const;
