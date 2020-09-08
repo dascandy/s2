@@ -68,10 +68,10 @@ public:
       encoding::walk(it_, -1);
       return copy;
     }
-    bool operator==(const string_iterator& rhs) {
+    bool operator==(const string_iterator& rhs) const {
       return rhs.it_ == it_;
     }
-    bool operator!=(const string_iterator& rhs) {
+    bool operator!=(const string_iterator& rhs) const {
       return rhs.it_ != it_;
     }
   };
