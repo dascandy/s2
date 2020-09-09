@@ -1,5 +1,5 @@
 #include "catch.hpp"
-#include <s2/vector>
+#include <s2/vector.h>
 
 TEST_CASE("create a vector and destruct it", "[vector]") {
   s2::vector<int> v;

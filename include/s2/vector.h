@@ -1,11 +1,10 @@
 #pragma once
 
-#include <iostream>
 #include <type_traits>
-#include <string>
 #include <initializer_list>
 #include <assert.h>
 #include <new>
+#include <cstdint>
 
 namespace s2 {
 
@@ -38,25 +37,29 @@ public:
   size_t capacity() const;
   size_t size() const;
   void reserve(size_t newCapacity);
+  void resize(size_t size);
   void grow();
   void shrink_to_fit();
   constexpr vector() noexcept;
   explicit vector(size_t count);
   vector(size_t count, const T& value);
-  template <typename IT>
-  vector(IT first, IT last);
-  vector(vector<T>&& other) noexcept(std::is_nothrow_move_constructible<T>::value);
+  vector(vector<T, maxsize>&& other) noexcept(std::is_nothrow_move_constructible<T>::value);
+  template <typename T2>
+  vector(T2&& other) noexcept(std::is_nothrow_move_constructible<T>::value);
   vector(const vector<T>& other);
   vector(std::initializer_list<T> init);
   ~vector();
   void assign(size_t count, const T& value);
-  template <typename IT>
-  void assign(IT first, IT last);
   void assign(std::initializer_list<T> ilist);
+  template <typename R>
+  void assign(const R& range);
+  template <typename R>
+  void append(const R& range);
   void truncate(size_t newSize);
   T* data();
   const T* data() const;
   const T& operator[](size_t index) const noexcept;
+  bool operator==(const vector<T, maxsize>& rhs) const;
   T& operator[](size_t index) noexcept;
   const T& at(size_t index) const;
   T& at(size_t index);

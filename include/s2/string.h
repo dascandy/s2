@@ -1,6 +1,6 @@
 #pragma once
 
-#include <s2/vector>
+#include <s2/vector.h>
 #include <tuple>
 #include <s2/detail/encoding_utf8.h>
 #include <s2/detail/null_iterator.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <s2/vector>
+#include <s2/vector.h>
 #include <s2/detail/encoding_utf8.h>
 #include <s2/detail/string_view.h>
 
@@ -17,7 +17,7 @@ public:
   }
   template <size_t N>
   basic_string(const typename encoding::char_type (&array)[N])
-  : storage_(array, array + N)
+  : storage_(std::forward<const typename encoding::char_type (&)[N]>(array))
   {}
   template <size_t N>
   explicit basic_string(vector<typename encoding::storage_type, N>&& sv) : storage_(std::move(sv)) {

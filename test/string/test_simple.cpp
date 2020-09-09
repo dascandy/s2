@@ -1,4 +1,4 @@
-#include <s2/string>
+#include <s2/string.h>
 #include "catch.hpp"
 
 TEST_CASE("create a string and destruct it", "[string]") {

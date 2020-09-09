@@ -1,8 +1,6 @@
 #pragma once
 
-#include <iostream>
 #include <type_traits>
-#include <string>
 #include <initializer_list>
 #include <assert.h>
 #include <new>
@@ -157,14 +155,8 @@ vector<T, maxsize>::vector(size_t count, const T& value) {
   while (count--) push_back(value);
 }
 
-template<class T, size_t maxsize>
-template <typename IT>
-vector<T, maxsize>::vector(IT first, IT last) {
-  assign(first, last);
-}
-
-template<class T, size_t maxsize>
-vector<T, maxsize>::vector(vector<T>&& other) noexcept(std::is_nothrow_move_constructible<T>::value) {
+template <class T, size_t maxsize>
+vector<T, maxsize>::vector(vector<T, maxsize>&& other) noexcept(std::is_nothrow_move_constructible<T>::value) {
   if (other.isExternal()) {
     innerSize_ = 255;
     inner* in = reinterpret_cast<inner*>(&storage);
@@ -179,9 +171,15 @@ vector<T, maxsize>::vector(vector<T>&& other) noexcept(std::is_nothrow_move_cons
 }
 
 template<class T, size_t maxsize>
+template <typename T2>
+vector<T, maxsize>::vector(T2&& ) noexcept(std::is_nothrow_move_constructible<T>::value) {
+  // TODO
+}
+
+template<class T, size_t maxsize>
 vector<T, maxsize>::vector(const vector<T>& other) {
   reserve(other.size());
-  assign(other.begin(), other.end());
+  assign(other);
 }
 
 template<class T, size_t maxsize>
@@ -202,18 +200,21 @@ void vector<T, maxsize>::assign(size_t count, const T& value) {
 }
 
 template<class T, size_t maxsize>
-template <typename IT>
-void vector<T, maxsize>::assign(IT first, IT last) {
-  clear();
-  while (first != last) push_back(*first++);
-}
-
-template<class T, size_t maxsize>
 void vector<T, maxsize>::assign(std::initializer_list<T> ilist) {
   clear();
   reserve(ilist.size());
   auto it = ilist.begin(), end = ilist.end();
   while (it != end) push_back(*it++);
+}
+
+template <class T, size_t maxsize>
+void vector<T, maxsize>::resize(size_t newSize) {
+  if (newSize < size()) truncate(newSize);
+  else {
+    reserve(newSize);
+    while (size() < newSize)
+      push_back({});
+  }
 }
 
 template<class T, size_t maxsize>
@@ -247,18 +248,6 @@ const T& vector<T, maxsize>::operator[](size_t index) const noexcept {
 template<class T, size_t maxsize>
 T& vector<T, maxsize>::operator[](size_t index) noexcept {
   assert(index < size());
-  return ptr()[index];
-}
-
-template<class T, size_t maxsize>
-const T& vector<T, maxsize>::at(size_t index) const {
-  if (index >= size()) throw std::out_of_range("index out of bounds");
-  return ptr()[index];
-}
-
-template<class T, size_t maxsize>
-T& vector<T, maxsize>::at(size_t index) {
-  if (index >= size()) throw std::out_of_range("index out of bounds");
   return ptr()[index];
 }
 

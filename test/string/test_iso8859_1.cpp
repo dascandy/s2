@@ -1,4 +1,4 @@
-#include <s2/string>
+#include <s2/string.h>
 #include "catch.hpp"
 #include <s2/detail/encoding_iso8859_1.h>
 
