@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iterator>
 #include <s2/vector.h>
 #include <s2/detail/encoding_utf8.h>
 #include <s2/detail/string_view.h>
