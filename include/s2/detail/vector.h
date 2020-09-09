@@ -151,12 +151,22 @@ vector<T, maxsize>::vector(size_t count) {
 }
 
 template<class T, size_t maxsize>
+template <typename IT>
+vector<T, maxsize>::vector(IT begin, IT end) {
+  reserve(end - begin);
+  while (begin != end) {
+    push_back(*begin);
+    ++begin;
+  }
+}
+
+template<class T, size_t maxsize>
 vector<T, maxsize>::vector(size_t count, const T& value) {
   while (count--) push_back(value);
 }
 
 template <class T, size_t maxsize>
-vector<T, maxsize>::vector(vector<T, maxsize>&& other) noexcept(std::is_nothrow_move_constructible<T>::value) {
+vector<T, maxsize>::vector(const vector<T, maxsize>& other) noexcept(std::is_nothrow_move_constructible<T>::value) {
   if (other.isExternal()) {
     innerSize_ = 255;
     inner* in = reinterpret_cast<inner*>(&storage);
@@ -173,13 +183,16 @@ vector<T, maxsize>::vector(vector<T, maxsize>&& other) noexcept(std::is_nothrow_
 template<class T, size_t maxsize>
 template <typename T2>
 vector<T, maxsize>::vector(T2&& ) noexcept(std::is_nothrow_move_constructible<T>::value) {
+  abort();
   // TODO
 }
 
 template<class T, size_t maxsize>
-vector<T, maxsize>::vector(const vector<T>& other) {
-  reserve(other.size());
-  assign(other);
+template <size_t N>
+vector<T, maxsize>::vector(const T (&arr)[N]) noexcept(std::is_nothrow_move_constructible<T>::value) {
+  reserve(N);
+  for (auto& e : arr)
+    push_back(e);
 }
 
 template<class T, size_t maxsize>

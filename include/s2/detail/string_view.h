@@ -40,6 +40,7 @@ public:
   auto back() const { return *--end(); }
   auto c_str() const { return ptr_; }
   auto data() const { return ptr_; }
+  auto size() const { return size_; }
   auto empty() const { return size_ == 0; }
 
   class string_iterator {

@@ -18,7 +18,7 @@ public:
   }
   template <size_t N>
   basic_string(const typename encoding::char_type (&array)[N])
-  : storage_(std::forward<const typename encoding::char_type (&)[N]>(array))
+  : storage_(array, array + N)
   {}
   template <size_t N>
   explicit basic_string(vector<typename encoding::storage_type, N>&& sv) : storage_(std::move(sv)) {

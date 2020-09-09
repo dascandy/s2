@@ -42,11 +42,14 @@ public:
   void shrink_to_fit();
   constexpr vector() noexcept;
   explicit vector(size_t count);
+  template <typename IT>
+  vector(IT begin, IT end);
   vector(size_t count, const T& value);
-  vector(vector<T, maxsize>&& other) noexcept(std::is_nothrow_move_constructible<T>::value);
+  vector(const vector<T, maxsize>& other) noexcept(std::is_nothrow_move_constructible<T>::value);
   template <typename T2>
   vector(T2&& other) noexcept(std::is_nothrow_move_constructible<T>::value);
-  vector(const vector<T>& other);
+  template <size_t N>
+  vector(const T (&arr)[N]) noexcept(std::is_nothrow_move_constructible<T>::value);
   vector(std::initializer_list<T> init);
   ~vector();
   void assign(size_t count, const T& value);
